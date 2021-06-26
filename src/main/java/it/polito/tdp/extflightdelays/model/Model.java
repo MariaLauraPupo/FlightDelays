@@ -21,7 +21,7 @@ public class Model {
 	private SimpleWeightedGraph<Airport, DefaultWeightedEdge> grafo;
 	private ExtFlightDelaysDAO dao;
 	private Map<Integer,Airport> idMap;
-	private Map<Airport,Airport> visita;
+	private Map<Airport,Airport> visita;//mappa dove salvo l'albero di visita
 	
 	public Model() {
 		dao = new ExtFlightDelaysDAO();
@@ -53,7 +53,7 @@ public class Model {
 				if(e == null) {
 					//non c'è ancora un arco tra questi due vertici
 					Graphs.addEdgeWithVertices(grafo, r.getA1(), r.getA2());
-					//salvo l'arco con il rpimo peso che ho trovato
+					//salvo l'arco con il primo peso che ho trovato
 				}else {
 					//ho già incotrato questo arco
 					//ne incremento solamente il peso
@@ -84,10 +84,11 @@ public class Model {
 		//creo l'iteratore
 		BreadthFirstIterator<Airport, DefaultWeightedEdge> it = new BreadthFirstIterator<>(grafo,a1);
 		
-		visita = new HashMap<>();
+		//mappa per salvare l'albero di visita
+	    visita = new HashMap<>();
 		visita.put(a1, null);//radice
-		it.addTraversalListener(new TraversalListener<Airport, DefaultWeightedEdge>(){//metti le aprentesi graffe per poter aggiungere i metodi
-
+		it.addTraversalListener(new TraversalListener<Airport, DefaultWeightedEdge>(){//metti le parentesi graffe per poter aggiungere i metodi
+//      alternativa usare getParent()
 			@Override
 			public void connectedComponentFinished(ConnectedComponentTraversalEvent e) {
 				
@@ -127,11 +128,11 @@ public class Model {
 		while(it.hasNext()) {
 			it.next();
 		}
-		
-		percorso .add(a2);
+		//ricordati di mettere la radice
+		percorso .add(a2);//vado all'indietro, quindi aggiungo la destinazione
 		Airport step = a2;
 		while(visita.get(step) != null) {
-			step = visita.get(step);
+			step = visita.get(step);//vado a vedere chi era suo padre
 			percorso.add(step);
 		}
 		
